@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+var s = securecookie.New(securecookie.GenerateRandomKey(64), securecookie.GenerateRandomKey(32))
+
 func Index(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Content-Type", "application/json")
 	// w.Write([]byte(`{"success":true}`))
@@ -14,6 +16,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	authen.GetCookie(r, "session")
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.FormValue("name"))
+	fmt.Println(r.FormValue("password"))
 }
 
 func main() {
