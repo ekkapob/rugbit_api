@@ -23,8 +23,10 @@ func logoutHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	db := db.GetDb()
-	fmt.Println(db)
+	database := db.GetDb()
+	defer database.Close()
+
+	fmt.Println(db.GetUserPwd(database, "ekkapob@gmail.com"))
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler)
