@@ -2,30 +2,33 @@ package main
 
 import (
 	"authen"
+	"db"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
-var s = securecookie.New(securecookie.GenerateRandomKey(64), securecookie.GenerateRandomKey(32))
-
-func Index(w http.ResponseWriter, r *http.Request) {
+func indexHandler(res http.ResponseWriter, req *http.Request) {
 	// w.Header().Set("Content-Type", "application/json")
 	// w.Write([]byte(`{"success":true}`))
-	authen.SetCookie(w, map[string]string{"foo": "bar"})
+	fmt.Println("index: ", authen.GetUserName(req))
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	authen.GetCookie(r, "session")
+func loginHandler(res http.ResponseWriter, req *http.Request) {
+	authen.SetCookie(res, "ek")
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.FormValue("name"))
-	fmt.Println(r.FormValue("password"))
+func logoutHandler(res http.ResponseWriter, req *http.Request) {
+	authen.ClearCookie(res)
 }
 
 func main() {
+	db := db.GetDb()
+	fmt.Println(db)
+
 	r := mux.NewRouter()
-	r.HandleFunc("/", Index)
-	r.HandleFunc("/login", Login).Methods("POST")
+	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/login", loginHandler).Methods("POST")
+	r.HandleFunc("/logout", logoutHandler).Methods("POST")
 	http.ListenAndServe(":8080", r)
 }

@@ -1,0 +1,118 @@
+!<arch>
+__.PKGDEF       0           0     0     644     12954     `
+go object darwin amd64 go1.4.1 X:precisestack
+
+$$
+package db
+	import runtime "runtime"
+	import pq "github.com/lib/pq"
+	import sql "database/sql"
+	import driver "database/sql/driver" // indirect
+	type @"database/sql/driver".Tx interface { Commit() (? error); Rollback() (? error) }
+	type @"database/sql/driver".Result interface { LastInsertId() (? int64, ? error); RowsAffected() (? int64, ? error) }
+	type @"database/sql/driver".Value interface {}
+	type @"database/sql/driver".Rows interface { Close() (? error); Columns() (? []string); Next(@"database/sql/driver".dest []@"database/sql/driver".Value) (? error) }
+	type @"database/sql/driver".Stmt interface { Close() (? error); Exec(@"database/sql/driver".args []@"database/sql/driver".Value) (? @"database/sql/driver".Result, ? error); NumInput() (? int); Query(@"database/sql/driver".args []@"database/sql/driver".Value) (? @"database/sql/driver".Rows, ? error) }
+	type @"database/sql/driver".Conn interface { Begin() (? @"database/sql/driver".Tx, ? error); Close() (? error); Prepare(@"database/sql/driver".query string) (? @"database/sql/driver".Stmt, ? error) }
+	type @"database/sql/driver".Driver interface { Open(@"database/sql/driver".name string) (? @"database/sql/driver".Conn, ? error) }
+	import sync "sync" // indirect
+	type @"sync".Mutex struct { @"sync".state int32; @"sync".sema uint32 }
+	func (@"sync".mÂ·1 *@"sync".Mutex) Lock ()
+	func (@"sync".mÂ·1 *@"sync".Mutex) Unlock ()
+	type @"database/sql".driverConn struct { @"database/sql".db *@"database/sql".DB; ? @"sync".Mutex; @"database/sql".ci @"database/sql/driver".Conn; @"database/sql".closed bool; @"database/sql".finalClosed bool; @"database/sql".openStmt map[@"database/sql/driver".Stmt]bool; @"database/sql".inUse bool; @"database/sql".onPut []func(); @"database/sql".dbmuClosed bool }
+	func (@"database/sql".dcÂ·2 *@"database/sql".driverConn) Close () (? error)
+	func (@"database/sql".dcÂ·2 *@"database/sql".driverConn) @"database/sql".closeDBLocked () (? func() (? error))
+	func (@"database/sql".dcÂ·2 *@"database/sql".driverConn) @"database/sql".finalClose () (? error)
+	func (@"database/sql".dcÂ·3 *@"database/sql".driverConn) @"database/sql".prepareLocked (@"database/sql".queryÂ·4 string) (? @"database/sql/driver".Stmt, ? error)
+	func (@"database/sql".dcÂ·1 *@"database/sql".driverConn) @"database/sql".releaseConn (@"database/sql".errÂ·2 error "esc:0x0")
+	func (@"database/sql".dcÂ·1 *@"database/sql".driverConn) @"database/sql".removeOpenStmt (@"database/sql".siÂ·2 @"database/sql/driver".Stmt "esc:0x0")
+	type @"database/sql".connRequest struct { @"database/sql".conn *@"database/sql".driverConn; @"database/sql".err error }
+	type @"database/sql".depSet map[interface {}]bool
+	type @"database/sql".finalCloser interface { @"database/sql".finalClose() (? error) }
+	type @"sync".Locker interface { Lock(); Unlock() }
+	type @"sync".RWMutex struct { @"sync".w @"sync".Mutex; @"sync".writerSem uint32; @"sync".readerSem uint32; @"sync".readerCount int32; @"sync".readerWait int32 }
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) Lock ()
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) RLock ()
+	func (@"sync".rwÂ·2 *@"sync".RWMutex "esc:0x2") RLocker () (? @"sync".Locker) { return (*@"sync".rlocker)(@"sync".rwÂ·2) }
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) RUnlock ()
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) Unlock ()
+	type @"database/sql".driverStmt struct { ? @"sync".Locker; @"database/sql".si @"database/sql/driver".Stmt }
+	func (@"database/sql".dsÂ·2 *@"database/sql".driverStmt) Close () (? error)
+	type @"database/sql".connStmt struct { @"database/sql".dc *@"database/sql".driverConn; @"database/sql".si @"database/sql/driver".Stmt }
+	type @"database/sql".Result interface { LastInsertId() (? int64, ? error); RowsAffected() (? int64, ? error) }
+	type @"database/sql".Rows struct { @"database/sql".dc *@"database/sql".driverConn; @"database/sql".releaseConn func(? error); @"database/sql".rowsi @"database/sql/driver".Rows; @"database/sql".closed bool; @"database/sql".lastcols []@"database/sql/driver".Value; @"database/sql".lasterr error; @"database/sql".closeStmt @"database/sql/driver".Stmt }
+	func (@"database/sql".rsÂ·2 *@"database/sql".Rows) Close () (? error)
+	func (@"database/sql".rsÂ·3 *@"database/sql".Rows) Columns () (? []string, ? error)
+	func (@"database/sql".rsÂ·2 *@"database/sql".Rows "esc:0x1") Err () (? error) { if @"database/sql".rsÂ·2.@"database/sql".lasterr == @"io".EOF { return nil }; return @"database/sql".rsÂ·2.@"database/sql".lasterr }
+	func (@"database/sql".rsÂ·2 *@"database/sql".Rows) Next () (? bool)
+	func (@"database/sql".rsÂ·2 *@"database/sql".Rows "esc:0x0") Scan (@"database/sql".destÂ·3 ...interface {} "esc:0x0") (? error)
+	type @"database/sql".Row struct { @"database/sql".err error; @"database/sql".rows *@"database/sql".Rows }
+	func (@"database/sql".rÂ·2 *@"database/sql".Row) Scan (@"database/sql".destÂ·3 ...interface {} "esc:0x0") (? error)
+	type @"database/sql".Stmt struct { @"database/sql".db *@"database/sql".DB; @"database/sql".query string; @"database/sql".stickyErr error; @"database/sql".closemu @"sync".RWMutex; @"database/sql".tx *@"database/sql".Tx; @"database/sql".txsi *@"database/sql".driverStmt; @"database/sql".mu @"sync".Mutex; @"database/sql".closed bool; @"database/sql".css []@"database/sql".connStmt }
+	func (@"database/sql".sÂ·2 *@"database/sql".Stmt) Close () (? error)
+	func (@"database/sql".sÂ·3 *@"database/sql".Stmt) Exec (@"database/sql".argsÂ·4 ...interface {} "esc:0x0") (? @"database/sql".Result, ? error)
+	func (@"database/sql".sÂ·3 *@"database/sql".Stmt) Query (@"database/sql".argsÂ·4 ...interface {} "esc:0x0") (? *@"database/sql".Rows, ? error)
+	func (@"database/sql".sÂ·2 *@"database/sql".Stmt) QueryRow (@"database/sql".argsÂ·3 ...interface {} "esc:0x0") (? *@"database/sql".Row)
+	func (@"database/sql".sÂ·5 *@"database/sql".Stmt) @"database/sql".connStmt () (@"database/sql".ciÂ·1 *@"database/sql".driverConn, @"database/sql".releaseConnÂ·2 func(? error), @"database/sql".siÂ·3 @"database/sql/driver".Stmt, @"database/sql".errÂ·4 error)
+	func (@"database/sql".sÂ·2 *@"database/sql".Stmt) @"database/sql".finalClose () (? error)
+	type @"database/sql".Tx struct { @"database/sql".db *@"database/sql".DB; @"database/sql".dc *@"database/sql".driverConn; @"database/sql".txi @"database/sql/driver".Tx; @"database/sql".done bool; @"database/sql".stmts struct { ? @"sync".Mutex; @"database/sql".v []*@"database/sql".Stmt } }
+	func (@"database/sql".txÂ·2 *@"database/sql".Tx) Commit () (? error)
+	func (@"database/sql".txÂ·3 *@"database/sql".Tx) Exec (@"database/sql".queryÂ·4 string, @"database/sql".argsÂ·5 ...interface {} "esc:0x0") (? @"database/sql".Result, ? error)
+	func (@"database/sql".txÂ·3 *@"database/sql".Tx) Prepare (@"database/sql".queryÂ·4 string) (? *@"database/sql".Stmt, ? error)
+	func (@"database/sql".txÂ·3 *@"database/sql".Tx) Query (@"database/sql".queryÂ·4 string, @"database/sql".argsÂ·5 ...interface {} "esc:0x0") (? *@"database/sql".Rows, ? error)
+	func (@"database/sql".txÂ·2 *@"database/sql".Tx) QueryRow (@"database/sql".queryÂ·3 string, @"database/sql".argsÂ·4 ...interface {} "esc:0x0") (? *@"database/sql".Row)
+	func (@"database/sql".txÂ·2 *@"database/sql".Tx) Rollback () (? error)
+	func (@"database/sql".txÂ·2 *@"database/sql".Tx) Stmt (@"database/sql".stmtÂ·3 *@"database/sql".Stmt) (? *@"database/sql".Stmt)
+	func (@"database/sql".txÂ·1 *@"database/sql".Tx) @"database/sql".close ()
+	func (@"database/sql".txÂ·1 *@"database/sql".Tx) @"database/sql".closePrepared ()
+	func (@"database/sql".txÂ·3 *@"database/sql".Tx "esc:0x1") @"database/sql".grabConn () (? *@"database/sql".driverConn, ? error) { if @"database/sql".txÂ·3.@"database/sql".done { return nil, @"database/sql".ErrTxDone }; return @"database/sql".txÂ·3.@"database/sql".dc, nil }
+	type @"database/sql".DB struct { @"database/sql".driver @"database/sql/driver".Driver; @"database/sql".dsn string; @"database/sql".mu @"sync".Mutex; @"database/sql".freeConn []*@"database/sql".driverConn; @"database/sql".connRequests []chan @"database/sql".connRequest; @"database/sql".numOpen int; @"database/sql".pendingOpens int; @"database/sql".openerCh chan struct {}; @"database/sql".closed bool; @"database/sql".dep map[@"database/sql".finalCloser]@"database/sql".depSet; @"database/sql".lastPut map[*@"database/sql".driverConn]string; @"database/sql".maxIdle int; @"database/sql".maxOpen int }
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) Begin () (? *@"database/sql".Tx, ? error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB) Close () (? error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB "esc:0x1") Driver () (? @"database/sql/driver".Driver) { return @"database/sql".dbÂ·2.@"database/sql".driver }
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) Exec (@"database/sql".queryÂ·4 string, @"database/sql".argsÂ·5 ...interface {} "esc:0x0") (? @"database/sql".Result, ? error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB) Ping () (? error)
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) Prepare (@"database/sql".queryÂ·4 string) (? *@"database/sql".Stmt, ? error)
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) Query (@"database/sql".queryÂ·4 string, @"database/sql".argsÂ·5 ...interface {} "esc:0x0") (? *@"database/sql".Rows, ? error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB) QueryRow (@"database/sql".queryÂ·3 string, @"database/sql".argsÂ·4 ...interface {} "esc:0x0") (? *@"database/sql".Row)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) SetMaxIdleConns (@"database/sql".nÂ·2 int)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) SetMaxOpenConns (@"database/sql".nÂ·2 int)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) @"database/sql".addDep (@"database/sql".xÂ·2 @"database/sql".finalCloser, @"database/sql".depÂ·3 interface {})
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB "esc:0x0") @"database/sql".addDepLocked (@"database/sql".xÂ·2 @"database/sql".finalCloser, @"database/sql".depÂ·3 interface {})
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) @"database/sql".begin () (@"database/sql".txÂ·1 *@"database/sql".Tx, @"database/sql".errÂ·2 error)
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) @"database/sql".conn () (? *@"database/sql".driverConn, ? error)
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) @"database/sql".connIfFree (@"database/sql".wantedÂ·4 *@"database/sql".driverConn "esc:0x2") (? *@"database/sql".driverConn, ? error)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) @"database/sql".connectionOpener ()
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) @"database/sql".exec (@"database/sql".queryÂ·4 string, @"database/sql".argsÂ·5 []interface {} "esc:0x0") (@"database/sql".resÂ·1 @"database/sql".Result, @"database/sql".errÂ·2 error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB "esc:0x0") @"database/sql".maxIdleConnsLocked () (? int)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB "esc:0x0") @"database/sql".maybeOpenNewConnections ()
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) @"database/sql".noteUnusedDriverStatement (@"database/sql".cÂ·2 *@"database/sql".driverConn, @"database/sql".siÂ·3 @"database/sql/driver".Stmt)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) @"database/sql".openNewConnection ()
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) @"database/sql".prepare (@"database/sql".queryÂ·4 string) (? *@"database/sql".Stmt, ? error)
+	func (@"database/sql".dbÂ·1 *@"database/sql".DB) @"database/sql".putConn (@"database/sql".dcÂ·2 *@"database/sql".driverConn, @"database/sql".errÂ·3 error "esc:0x0")
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB) @"database/sql".putConnDBLocked (@"database/sql".dcÂ·3 *@"database/sql".driverConn, @"database/sql".errÂ·4 error) (? bool)
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB) @"database/sql".query (@"database/sql".queryÂ·4 string, @"database/sql".argsÂ·5 []interface {} "esc:0x0") (? *@"database/sql".Rows, ? error)
+	func (@"database/sql".dbÂ·3 *@"database/sql".DB "esc:0x0") @"database/sql".queryConn (@"database/sql".dcÂ·4 *@"database/sql".driverConn, @"database/sql".releaseConnÂ·5 func(? error), @"database/sql".queryÂ·6 string, @"database/sql".argsÂ·7 []interface {} "esc:0x0") (? *@"database/sql".Rows, ? error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB) @"database/sql".removeDep (@"database/sql".xÂ·3 @"database/sql".finalCloser, @"database/sql".depÂ·4 interface {}) (? error)
+	func (@"database/sql".dbÂ·2 *@"database/sql".DB "esc:0x0") @"database/sql".removeDepLocked (@"database/sql".xÂ·3 @"database/sql".finalCloser, @"database/sql".depÂ·4 interface {}) (? func() (? error))
+	func @"".GetDb () (? *@"database/sql".DB)
+	func @"".init ()
+	type @"sync".rlocker struct { @"sync".w @"sync".Mutex; @"sync".writerSem uint32; @"sync".readerSem uint32; @"sync".readerCount int32; @"sync".readerWait int32 }
+	func (@"sync".rÂ·1 *@"sync".rlocker) Lock ()
+	func (@"sync".rÂ·1 *@"sync".rlocker) Unlock ()
+	import io "io" // indirect
+	var @"io".EOF error
+	var @"database/sql".ErrTxDone error
+
+$$
+_go_.6          0           0     0     644     3363      `
+go object darwin amd64 go1.4.1 X:precisestack
+
+!
+  go13lddatabase/sql.a&github.com/lib/pq.a ş"".GetDb  À  ¶eH‹%    H;awè    ëêHƒìHH    H,$H‰ïH‰ŞH¥H¥H    Hl$H‰ïH‰ŞH¥H¥è    H‹L$ H‹D$(H‹T$0Hƒø t2H‰D$8H‰$H‰T$@H‰T$è    H\$H,$H‰ïH‰ŞH¥H¥è    H‰L$PHƒÄHÃ
+         0runtime.morestack_noctxt   :  (go.string."postgres"   d  zgo.string."user=pqgotest dbname=pqgotest sslmode=verify-full"   Œ  "database/sql.Open   æ  runtime.convI2E   –  runtime.gopanic     "".err type.error "".~r0  *type.*database/sql.DB €   ?2 
+ E[ TgclocalsÂ·a7a3692b8e27e823add69ec4239ba55f TgclocalsÂ·d64e51a4c4bfeaa840e480961ec6b0b3   T/Users/Ek/projects/rugbit_api/src/db/db.goş"".init     eH‹%    H;awè    ëê¶    €û t¶    €ûuÃè    Æ    è    è    Æ    Ã
+         0runtime.morestack_noctxt   2  "".initdoneÂ·   J  "".initdoneÂ·   `  "runtime.throwinit   p "".initdoneÂ·   |  ,github.com/lib/pq.init   †  "database/sql.init   ’ "".initdoneÂ·        P P *P 
+ /! TgclocalsÂ·3280bececceccd33cb74587feedb1f9f TgclocalsÂ·3280bececceccd33cb74587feedb1f9f   T/Users/Ek/projects/rugbit_api/src/db/db.goş(go.string."postgres" @  2               postgres    (go.string."postgres"   şzgo.string."user=pqgotest dbname=pqgotest sslmode=verify-full"   „        1       user=pqgotest dbname=pqgotest sslmode=verify-full    zgo.string."user=pqgotest dbname=pqgotest sslmode=verify-full"   şTgclocalsÂ·d64e51a4c4bfeaa840e480961ec6b0b3              şTgclocalsÂ·a7a3692b8e27e823add69ec4239ba55f              ş$go.string."rugbit" 0  .               rugbit    $go.string."rugbit"   ş,go.string."rugbit_123" @  6        
+       rugbit_123    ,go.string."rugbit_123"   ş(go.string."rugbitdb" @  2               rugbitdb    (go.string."rugbitdb"   şTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           şTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           ş*"".user   type.string                    $go.string."rugbit"   ş*"".pwd   type.string          
+          ,go.string."rugbit_123"   ş*"".dbname   type.string                    (go.string."rugbitdb"   ş,"".initdoneÂ·  type.uint8   ş"".GetDbÂ·f              "".GetDb   ş(database/sql.OpenÂ·f              "database/sql.Open   ş$runtime.convI2EÂ·f              runtime.convI2E   ş$runtime.gopanicÂ·f              runtime.gopanic   ş,runtime.throwreturnÂ·f              &runtime.throwreturn   ş"".initÂ·f              "".init   ş(runtime.throwinitÂ·f              "runtime.throwinit   ş2github.com/lib/pq.initÂ·f              ,github.com/lib/pq.init   ş(database/sql.initÂ·f              "database/sql.init   ş&go.string."runtime" 0  0               runtime    &go.string."runtime"   ş,go.importpath.runtime.                       &go.string."runtime"   ş:go.string."github.com/lib/pq" P  D               github.com/lib/pq    :go.string."github.com/lib/pq"   ş@go.importpath.github.com/lib/pq.                       :go.string."github.com/lib/pq"   ş0go.string."database/sql" @  :               database/sql    0go.string."database/sql"   ş6go.importpath.database/sql.                       0go.string."database/sql"   ş"runtime.zerovalue      ÿÿgo13ld 
