@@ -11,7 +11,7 @@ import (
 func indexHandler(res http.ResponseWriter, req *http.Request) {
 	// w.Header().Set("Content-Type", "application/json")
 	// w.Write([]byte(`{"success":true}`))
-	fmt.Println("index: ", authen.GetUserName(req))
+	//fmt.Println("index: ", authen.GetCookieUserName(req))
 }
 
 func loginHandler(res http.ResponseWriter, req *http.Request) {
@@ -27,6 +27,7 @@ func main() {
 	defer database.Close()
 
 	fmt.Println(db.GetUserPwd(database, "ekkapob@gmail.com"))
+	authen.GetUser("123", "thailand")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler)

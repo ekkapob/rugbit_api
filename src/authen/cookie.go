@@ -26,7 +26,7 @@ func SetCookie(req http.ResponseWriter, userName string) {
 	}
 }
 
-func GetUserName(req *http.Request) (userName string) {
+func GetCookieUserName(req *http.Request) (userName string) {
 	return getCookie(req)["user"]
 }
 
