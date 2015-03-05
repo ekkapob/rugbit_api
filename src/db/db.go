@@ -13,7 +13,7 @@ const (
 )
 
 func GetUserPwd(db *sql.DB, email string) (password string) {
-	_ = db.QueryRow("select password from users where email = $1 ", email).Scan(&password)
+	_ = db.QueryRow("select password from users where username = $1 ", email).Scan(&password)
 	return password
 }
 

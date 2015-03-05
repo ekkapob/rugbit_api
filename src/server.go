@@ -3,7 +3,7 @@ package main
 import (
 	"authen"
 	"db"
-	"fmt"
+	//"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -26,8 +26,18 @@ func main() {
 	database := db.GetDb()
 	defer database.Close()
 
-	fmt.Println(db.GetUserPwd(database, "ekkapob@gmail.com"))
-	authen.GetUser("123", "thailand")
+	// fmt.Println(db.GetUserPwd(database, "ekkapob@gmail.com"))
+	// authen.GetUser("123", "thailand")
+
+	// Test login
+	// authen.Login(database, "ekkapob@gmail.com", "thailand")
+	// authen.Login(database, "test@gmail.com", "hello")
+
+	// Test Signup
+	err := authen.Signup(database, "abc@gmail.com", "Icanfly")
+	if err != nil {
+
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler)
