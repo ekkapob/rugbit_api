@@ -13,13 +13,16 @@ const (
 )
 
 type User struct {
-	id int
+	id        int
+	username  string
+	firstname string
+	lastname  string
 }
 
-func GetUserPwd(db *sql.DB, email string) (password string) {
-	_ = db.QueryRow("select password from users where username = $1 ", email).Scan(&password)
-	return password
-}
+// func GetUserPwd(db *sql.DB, email string) (password string) {
+// 	_ = db.QueryRow("select password from users where username = $1 ", email).Scan(&password)
+// 	return password
+// }
 
 // func GetUserId(db *sql.DB, username string) int {
 // 	var id int

@@ -6,22 +6,31 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(db *sql.DB, username, password string) (userId int) {
-	// hh, _ := bcrypt.GenerateFromPassword([]byte("hello"), bcrypt.DefaultCost)
-	// fmt.Println(">>", string(hh))
-	var (
-		id      int
-		hashPwd string
-	)
-	_ = db.QueryRow("select id, password from users where username = $1", username).Scan(&id, &hashPwd)
-	if id != 0 {
-		err := bcrypt.CompareHashAndPassword([]byte(hashPwd), []byte(password))
+// func Login(db *sql.DB, username, password string) (userId int) {
+// 	var (
+// 		id      int
+// 		hashPwd string
+// 	)
+// 	_ = db.QueryRow("select id, password from users where username = $1", username).Scan(&id, &hashPwd)
+// 	if id != 0 {
+// 		err := bcrypt.CompareHashAndPassword([]byte(hashPwd), []byte(password))
+// 		if err == nil {
+// 			userId = id
+// 		}
+// 	}
+// 	return userId
+// }
+
+func Authen(db *sql.DB, username, password string) (err error, user User) {
+
+	err, hashPassword := getHashPassword(db, username)
+	if err == nil {
+		err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
 		if err == nil {
-			userId = id
+			err, user = GetUser(db, username)
 		}
 	}
-	// fmt.Println("user id:", userId)
-	return userId
+	return err, user
 }
 
 func Signup(db *sql.DB, username, password string) error {
