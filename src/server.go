@@ -4,14 +4,23 @@ import (
 	"authen"
 	"database/sql"
 	dblib "db"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"model"
 	"net/http"
+	"strings"
 )
 
 type Response struct {
-	error string
-	data  authen.User
+	Success bool   `json:"success"`
+	Error   string `json:"error,omitempty"`
+	UserResponse
+}
+
+type UserResponse struct {
+	// Error string      `json:"error,omitempty"`
+	User *model.User `json:"user,omitempty"`
 }
 
 func indexHandler(res http.ResponseWriter, req *http.Request) {
@@ -20,21 +29,56 @@ func indexHandler(res http.ResponseWriter, req *http.Request) {
 	//fmt.Println("index: ", authen.GetCookieUserName(req))
 }
 
+func signupHandler(res http.ResponseWriter, req *http.Request, db *sql.DB) {
+
+	user := model.User{
+		Username:  strings.TrimSpace(req.FormValue("username")),
+		Password:  strings.TrimSpace(req.FormValue("password")),
+		Firstname: strings.TrimSpace(req.FormValue("firstname")),
+		Lastname:  strings.TrimSpace(req.FormValue("lastname")),
+	}
+
+	response := &Response{}
+	if len(user.Username) == 0 || len(user.Password) == 0 {
+		res.WriteHeader(http.StatusInternalServerError)
+		response.Error = "username and password are required"
+		resData, _ := json.Marshal(response)
+		res.Write(resData)
+		return
+	}
+
+	err := authen.Signup(db, user)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		response.Error = err.Error()
+		resData, _ := json.Marshal(response)
+		res.Write(resData)
+		return
+	}
+
+	response.Success = true
+	resData, _ := json.Marshal(response)
+	res.Write(resData)
+}
+
 func loginHandler(res http.ResponseWriter, req *http.Request, db *sql.DB) {
 	username := req.FormValue("username")
 	password := req.FormValue("password")
-	// fmt.Println(username, ":", password)
-	err, _ := authen.Authen(db, username, password)
+	err, user := authen.Authen(db, username, password)
 
-	res.Header().Set("Content-Type", "application/json")
-
+	response := &Response{}
 	if err != nil {
 		res.WriteHeader(http.StatusUnauthorized)
-
-		res.Write([]byte("Invalid username or password"))
+		response.Error = "Invalid username or password"
+	} else {
+		response.User = &user
+		fmt.Println(user)
+		authen.SetCookie(res, user.Username)
 	}
-
-	res.Write([]byte("Invalid username or password"))
+	fmt.Println(response.User)
+	resData, _ := json.Marshal(response)
+	fmt.Println(string(resData))
+	res.Write(resData)
 }
 
 func logoutHandler(res http.ResponseWriter, req *http.Request) {
@@ -43,6 +87,7 @@ func logoutHandler(res http.ResponseWriter, req *http.Request) {
 
 func dbHandler(fn func(http.ResponseWriter, *http.Request, *sql.DB), db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		fn(w, r, db)
 	}
 }
@@ -59,18 +104,19 @@ func main() {
 	// authen.Login(db, "test@gmail.com", "hello")
 
 	// Test Signup
-	err := authen.Signup(db, "abc@gmail.com", "Icanfly")
-	if err != nil {
-	}
+	//err := authen.Signup(db, "abc@gmail.com", "Icanfly")
+	// if err != nil {
+	// }
 
 	// Test
 	// fmt.Println(authen.GetUser(db, "ekkapob@gmail.com"))
 	// fmt.Println(authen.GetUser(db, "test@gmail.com"))
-	fmt.Println(authen.Authen(db, "ekkapob@gmail.com", "thailand"))
-	fmt.Println(authen.Authen(db, "test@gmail.com", "hello"))
+	// fmt.Println(authen.Authen(db, "ekkapob@gmail.com", "thailand"))
+	// fmt.Println(authen.Authen(db, "test@gmail.com", "hello"))
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/signup", dbHandler(signupHandler, db)).Methods("POST")
 	r.HandleFunc("/login", dbHandler(loginHandler, db)).Methods("POST")
 	r.HandleFunc("/logout", logoutHandler).Methods("POST")
 	http.ListenAndServe(":8080", r)

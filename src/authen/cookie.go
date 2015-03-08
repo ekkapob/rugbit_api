@@ -12,7 +12,7 @@ var (
 	s        = securecookie.New(hashKey, blockKey)
 )
 
-func SetCookie(req http.ResponseWriter, userName string) {
+func SetCookie(res http.ResponseWriter, userName string) {
 	value := map[string]string{
 		"user": userName,
 	}
@@ -22,7 +22,7 @@ func SetCookie(req http.ResponseWriter, userName string) {
 			Value: encoded,
 			Path:  "/",
 		}
-		http.SetCookie(req, cookie)
+		http.SetCookie(res, cookie)
 	}
 }
 
