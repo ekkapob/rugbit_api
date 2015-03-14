@@ -25,5 +25,5 @@ func addUser(db *sql.DB, user model.User) error {
 		return err
 	}
 	_, err = stmt.Exec(user.Username, user.Password, user.Firstname, user.Lastname)
-	return nil
+	return err
 }
