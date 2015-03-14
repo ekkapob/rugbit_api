@@ -16,11 +16,15 @@ type Response struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error,omitempty"`
 	UserResponse
+	PostResponse
 }
 
 type UserResponse struct {
-	// Error string      `json:"error,omitempty"`
 	User *model.User `json:"user,omitempty"`
+}
+
+type PostResponse struct {
+	Post *model.Post `json:"post,omitempty"`
 }
 
 func indexHandler(res http.ResponseWriter, req *http.Request) {
@@ -92,6 +96,10 @@ func dbHandler(fn func(http.ResponseWriter, *http.Request, *sql.DB), db *sql.DB)
 	}
 }
 
+func postHandler(res http.ResponseWriter, req *http.Request) {
+
+}
+
 func main() {
 	db := dblib.GetDb()
 	defer db.Close()
@@ -119,5 +127,8 @@ func main() {
 	r.HandleFunc("/signup", dbHandler(signupHandler, db)).Methods("POST")
 	r.HandleFunc("/login", dbHandler(loginHandler, db)).Methods("POST")
 	r.HandleFunc("/logout", logoutHandler).Methods("POST")
+
+	r.HandleFunc("/post/{id}", postHandler)
+
 	http.ListenAndServe(":8080", r)
 }
